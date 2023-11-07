@@ -4,9 +4,9 @@
 
 ```js
 
-    npm install tingfeng_arcgis
+    npm install arcgis-vue3
 
-    yarn add tingfeng_arcgis
+    yarn add arcgis-vue3
 
 ```
 
@@ -16,9 +16,9 @@ main.ts中引入
 
 ```ts
 
-    import TingfengArcgis from "tingfeng_arcgis"
+    import TingfengArcgis from "arcgis-vue3"
 
-    import 'tingfeng_arcgis/css'
+    import 'arcgis-vue3/css'
 
     app.use(TingfengArcgis);
 
@@ -31,7 +31,7 @@ main.ts中引入
 ```json
 
     "types": [
-      "tingfeng_arcgis/src/packages/components.d.ts"
+      "arcgis-vue3/src/packages/components.d.ts"
     ],
 
 ```

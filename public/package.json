@@ -1,8 +1,8 @@
 {
-  "name": "tingfeng_arcgis",
+  "name": "arcgis-vue3",
   "private": false,
-  "version": "0.0.4",
-  "description": "tingfeng_ArcGis包",
+  "version": "0.0.6",
+  "description": "arcgis-vue3组件包",
   "author": {
     "name": "tingfeng",
     "email": "shisanlailin@outllok.com"
