@@ -1,7 +1,7 @@
 {
   "name": "tingfeng_arcgis",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "tingfeng_ArcGis包",
   "author": {
     "name": "tingfeng",
@@ -31,7 +31,8 @@
     "index.js",
     "index.umd.cjs",
     "package.json",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
