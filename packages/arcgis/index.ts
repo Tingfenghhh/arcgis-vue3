@@ -1,6 +1,7 @@
 // import { toRaw } from 'vue'
 import { MapEnum } from './enum/mapEnum'
-// import { Handler } from 'mitt'
+import { Handler } from 'mitt'
+import { mapViewEmitter, sceneViewEmitter } from "../mitter"
 import _ from 'lodash' // 引入lodash
 import Map from '@arcgis/core/Map' // 引入ArcGis地图
 import SceneView from '@arcgis/core/views/SceneView' // 引入ArcGis地图视图(3D)
@@ -13,7 +14,7 @@ import WebTileLayer from '@arcgis/core/layers/WebTileLayer' // 引入ArcGis使�
 // import Point from '@arcgis/core/geometry/Point' // 引入ArcGis点
 import Color from '@arcgis/core/Color' // 引入ArcGis颜色
 import __esri from '@arcgis/core/intl' // 引入ArcGis的TS所有类型合集
-import { MapKey } from './enum' // 引入ArcGis的key
+import { ClickType, MAP_VIEW_CLICK, MapKey, SCENE_VIEW_MAP_CLICK } from './enum' // 引入ArcGis的key
 import "@arcgis/core/assets/esri/themes/light/main.css" // 引入ArcGis样式
 import "./style/index.less" // 引入自定义样式
 
@@ -38,11 +39,11 @@ export default class Arcgis {
     }
 
     /**
-     * 地图初始化
+     * 地图初始化(2D/3D)皆可以
      * @param container 
      * @param type 
      * @param options 
-     * @returns 
+     * @returns {Promise<__esri.SceneView | __esri.MapView>}
      */
     initMap = (container: string, type: "MapView" | "SceneView", options?: __esri.MapProperties | __esri.SceneViewProperties): Promise<__esri.SceneView | __esri.MapView> => {
         try {
@@ -80,6 +81,7 @@ export default class Arcgis {
                     center: [DEFAULT_LONGITUDE, DEFAULT_LATITUDE],
                     ...options as __esri.MapViewProperties
                 })
+                this.onMapClick()
                 return Promise.resolve(this.viewScene2D)
             }
 
@@ -132,7 +134,7 @@ export default class Arcgis {
                 },
                 ...options
             })
-
+            this.onMapClick()
             return Promise.resolve(this.viewScene3D)
 
         } catch (error) {
@@ -141,7 +143,9 @@ export default class Arcgis {
     }
 
     /**
-     * 地图销毁
+     * 销毁地图和视图。
+     * @returns {Promise<boolean>}
+     * 如果销毁成功，则返回一个解析为 true 的 Promise；否则返回一个解析为 false 的 Promise。
      */
     destroyed = (): Promise<boolean> => {
         try {
@@ -150,12 +154,15 @@ export default class Arcgis {
             if (this.viewScene2D) {
                 this.viewScene2D.destroy()
             }
+
             if (this.viewScene3D) {
                 this.viewScene3D.destroy()
             }
+
             this.map = null
             this.viewScene3D = null
             this.viewScene2D = null
+
             return Promise.resolve(true)
         } catch (error) {
             throw new Error(error as string)
@@ -163,17 +170,20 @@ export default class Arcgis {
     }
 
     /**
-     * 地图点击事件监听
+     * 地图点击事件监听并触发mitt
      */
     onMapClick = () => {
         try {
-            console.log(this.mapType, this.viewScene2D, this.viewScene3D)
             if (this.mapType === '2D' && this.viewScene2D) {
-
+                this.viewScene2D.on('click', _.throttle(async (event: __esri.ViewClickEvent) => {
+                    mapViewEmitter.emit(MAP_VIEW_CLICK, event)
+                }))
+                return
             }
 
             if (this.mapType === '3D' && this.viewScene3D) {
                 this.viewScene3D.on('click', _.throttle(async (event: __esri.ViewClickEvent) => {
+                    sceneViewEmitter.emit(SCENE_VIEW_MAP_CLICK, event)
                     const clickType = event.button // 0左键 1中键 2右键
                     const view = this.viewScene3D
                     // hitTest 方法在点击位置上如果存在 Graphic（线或点），即可获取 Graphic 对象的整个数据
@@ -198,11 +208,56 @@ export default class Arcgis {
                 return
             }
 
-            throw new Error("initMap Method not implemented.")
-
         } catch (error) {
             throw new Error(error as string)
         }
+    }
+
+    /**
+     * 2D地图监听地图点击事件
+     * @param {handler <__esri.ViewClickEvent>} handler
+     */
+    mapViewClick = (handler: Handler<__esri.ViewClickEvent>) => {
+        try {
+            mapViewEmitter.on(MAP_VIEW_CLICK, (event) => {
+                handler(event as __esri.ViewClickEvent)
+            })
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+    /**
+     * 3D地图监听地图点击事件
+     * @param {handler <__esri.ViewClickEvent>} handler
+     */
+    sceneViewClick = (handler: Handler<__esri.ViewClickEvent>) => {
+        try {
+            sceneViewEmitter.on(SCENE_VIEW_MAP_CLICK, (event) => {
+                handler(event as __esri.ViewClickEvent)
+            })
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+
+    /**
+    * @description 清除所有mitt监听
+    */
+    clearEvent = () => {
+        try {
+            mapViewEmitter.all.clear()
+            sceneViewEmitter.all.clear()
+        } catch (error) {
+            throw Error(error as string)
+        }
+    }
+    /**
+     * @description 清除单个mitt监听
+     */
+    clearSingeEvent = (eventType: ClickType, name: string) => {
+        mapViewEmitter.off(`${eventType}${name}`)
+        sceneViewEmitter.off(`${eventType}${name}`)
     }
 
 }

@@ -1,0 +1,54 @@
+{
+  "name": "tingfeng_arcgis",
+  "private": false,
+  "version": "0.0.2",
+  "description": "tingfeng_ArcGis包",
+  "author": {
+    "name": "tingfeng",
+    "email": "shisanlailin@outllok.com"
+  },
+  "main": "./index.js",
+  "module": "./index.js",
+  "type": "module",
+  "types": "./src/packages/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "require": "./index.js"
+    },
+    "./css": {
+      "import": "./css/index.css",
+      "require": "./css/index.css"
+    },
+    "./*": [
+      "./*",
+      "./*.d.ts"
+    ]
+  },
+  "files": [
+    "css",
+    "src/packages",
+    "index.js",
+    "index.umd.cjs",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "tingfeng",
+    "tf",
+    "tingfeng_arcgis",
+    "arcgis"
+  ],
+  "dependencies": {
+    "@arcgis/core": "^4.28.7",
+    "@vueuse/core": "^10.5.0",
+    "lodash": "^4.17.21",
+    "mitt": "^3.0.1",
+    "nanoid": "5.0.3",
+    "dayjs": "^1.11.10"
+  },
+  "license": "MIT"
+}

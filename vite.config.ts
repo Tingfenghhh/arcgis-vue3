@@ -30,7 +30,12 @@ export default defineConfig({
     }, //库编译模式配置
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
-      external: ["vue", "loadsh", "@arcgis/core"],
+      external: ["vue", "loadsh",
+        // 正则表达式匹配所有以"@arcgis/core"开头的依赖
+        /^@arcgis\/core/,
+        "nanoid",
+        "mitt"
+      ],
       input: [path.resolve(__dirname, "packages/index.ts")],
       output: {
         format: "es",

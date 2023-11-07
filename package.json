@@ -21,6 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^5.54.0",
     "@typescript-eslint/parser": "^5.54.0",
     "@vitejs/plugin-vue": "^4.2.3",
+    "terser": "^5.24.0",
     "typescript": "^5.2.2",
     "vite": "^4.3.9",
     "vite-plugin-dts": "^3.6.3",

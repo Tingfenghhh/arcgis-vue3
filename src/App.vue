@@ -4,14 +4,35 @@ import { ref } from "vue";
 const mapLoaded = (map: __esri.SceneView | __esri.MapView) => {
   console.log("地图加载完毕", map);
 };
-const show = ref(true);
-// setTimeout(() => {
-//   show.value = false;
-// }, 5000);
+
+const mapClick = (event: __esri.ViewClickEvent | undefined) => {
+  console.log("2d地图点击事件", event);
+};
+const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
+  console.log("3d地图点击事件", event);
+};
 </script>
 
 <template>
-  <T-ArcGis v-if="show" :map-type="'SceneView'" @onMapLoaded="mapLoaded" />
+  <T-ArcGis
+    :map-type="'MapView'"
+    :map-options="{
+    zoom: 3,
+    constraints: {
+      minZoom: 3,
+      maxZoom: 18,
+    },
+  } as __esri.MapProperties
+    "
+    @onMapLoaded="mapLoaded"
+    @onMapClick="mapClick"
+  />
+  <T-ArcGis
+    :map-type="'SceneView'"
+    :quality-profile="'low'"
+    @onMapLoaded="mapLoaded"
+    @onSceneMapClick="sceneClick"
+  />
 </template>
 
 <style lang="less" scoped></style>
