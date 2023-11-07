@@ -141,10 +141,33 @@ export default class Arcgis {
     }
 
     /**
+     * 地图销毁
+     */
+    destroyed = (): Promise<boolean> => {
+        try {
+            if (!this.map) return Promise.resolve(false)
+
+            if (this.viewScene2D) {
+                this.viewScene2D.destroy()
+            }
+            if (this.viewScene3D) {
+                this.viewScene3D.destroy()
+            }
+            this.map = null
+            this.viewScene3D = null
+            this.viewScene2D = null
+            return Promise.resolve(true)
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    /**
      * 地图点击事件监听
      */
     onMapClick = () => {
         try {
+            console.log(this.mapType, this.viewScene2D, this.viewScene3D)
             if (this.mapType === '2D' && this.viewScene2D) {
 
             }
@@ -172,6 +195,7 @@ export default class Arcgis {
                     }
 
                 }))
+                return
             }
 
             throw new Error("initMap Method not implemented.")

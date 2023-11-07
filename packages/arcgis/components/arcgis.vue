@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import { onMounted, computed } from "vue";
-import Arcgis from "../arcgis";
+import { onMounted, computed, onBeforeUnmount } from "vue";
+import Arcgis from "..";
 
 interface TArcgisProps {
-  container: string;
   mapType: "MapView" | "SceneView";
+  container?: string;
   mapOptions?: __esri.MapProperties | __esri.SceneViewProperties;
   width?: string;
   height?: string;
 }
 
+const emits = defineEmits<{
+  (e: "onMapLoaded", map: __esri.SceneView | __esri.MapView): void;
+}>();
+
 const props = withDefaults(defineProps<TArcgisProps>(), {
   container: "t-arcgis-box",
   mapType: "MapView",
-  mapOptions: {
-    zoom: 3,
-  } as __esri.MapProperties | __esri.SceneViewProperties,
 });
 
 const ArcgisMap = new Arcgis();
@@ -25,9 +26,29 @@ const height = computed(() => props.height || "100vh");
 
 onMounted(() => {
   if (props.container && props.mapType) {
-    ArcgisMap.initMap(props.container, props.mapType, props.mapOptions);
+    ArcgisMap.initMap(props.container, props.mapType, props.mapOptions).then(
+      (res) => {
+        emits("onMapLoaded", res);
+        // 启用地图点击事件
+        ArcgisMap.onMapClick();
+      }
+    );
   }
 });
+
+onBeforeUnmount(() => {
+  ArcgisMap.destroyed().then((res)=>{
+    if(res){
+      console.log("地图销毁成功")
+    }else{
+      console.log("地图销毁失败")
+    }
+
+  }).catch((err)=>{
+    console.log("地图销毁失败",err)
+  })
+
+})
 </script>
 
 <template>
@@ -50,3 +71,4 @@ body {
   padding: 0;
 }
 </style>
+..

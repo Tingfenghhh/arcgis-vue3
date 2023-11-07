@@ -33,4 +33,5 @@ const CAMREAHEIGHT = Symbol('camera.position.z')
  */
 type ClickType = 'CLICK' | 'MOUSEMOVE' | 'RIGHTCLICK'
 
-export { MapKey, LOADEND, CLICK, LEFT_CLICK, RIGHT_CLICK, CAMREAHEIGHT, ClickType }
+export { MapKey, LOADEND, CLICK, LEFT_CLICK, RIGHT_CLICK, CAMREAHEIGHT }
+export type { ClickType }

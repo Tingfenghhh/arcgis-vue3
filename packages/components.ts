@@ -1,7 +1,7 @@
-
+import TArcGis from "./arcgis/components"
 
 declare module '@vue/runtime-core' {
-  export interface GlobalComponents {
- 
-  }
+    export interface GlobalComponents {
+        TArcGis: typeof TArcGis
+    }
 }
