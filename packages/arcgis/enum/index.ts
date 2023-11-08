@@ -14,6 +14,14 @@ const SCENE_VIEW_MAP_CLICK = Symbol('SCENE_VIEW_MAP_CLICK')
 const MAP_VIEW_CLICK = Symbol('MAP_VIEW_CLICK')
 
 /**
+ * 鼠标移动事件
+ */
+const MAP_VIEW_MOUSEMOVE = Symbol('MAP_VIEW_MOUSEMOVE')
+
+const SCENE_VIEW_MOUSEMOVE = Symbol('SCENE_VIEW_MOUSEMOVE')
+
+
+/**
  * 左键点击事件(只包含地图点)
  */
 
@@ -35,5 +43,5 @@ const CAMREAHEIGHT = Symbol('camera.position.z')
  */
 type ClickType = 'CLICK' | 'MOUSEMOVE' | 'RIGHTCLICK'
 
-export { MapKey, LOADEND, SCENE_VIEW_MAP_CLICK, MAP_VIEW_CLICK, LEFT_CLICK, RIGHT_CLICK, CAMREAHEIGHT }
+export { MapKey, LOADEND, SCENE_VIEW_MAP_CLICK, MAP_VIEW_CLICK, MAP_VIEW_MOUSEMOVE, SCENE_VIEW_MOUSEMOVE, LEFT_CLICK, RIGHT_CLICK, CAMREAHEIGHT }
 export type { ClickType }

@@ -11,10 +11,10 @@ import WebTileLayer from '@arcgis/core/layers/WebTileLayer' // 引入ArcGis使�
 // import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol' // 引入ArcGis图片标记
 // import TextSymbol from '@arcgis/core/symbols/TextSymbol' // 引入ArcGis文字标记
 // import Graphic from '@arcgis/core/Graphic' // 引入ArcGis标记
-// import Point from '@arcgis/core/geometry/Point' // 引入ArcGis点
+import Point from '@arcgis/core/geometry/Point' // 引入ArcGis点
 import Color from '@arcgis/core/Color' // 引入ArcGis颜色
 import __esri from '@arcgis/core/intl' // 引入ArcGis的TS所有类型合集
-import { ClickType, MAP_VIEW_CLICK, MapKey, SCENE_VIEW_MAP_CLICK } from './enum' // 引入ArcGis的key
+import { ClickType, MAP_VIEW_CLICK, MapKey, SCENE_VIEW_MAP_CLICK, MAP_VIEW_MOUSEMOVE, SCENE_VIEW_MOUSEMOVE, CAMREAHEIGHT } from './enum' // 引入ArcGis的key
 import "@arcgis/core/assets/esri/themes/light/main.css" // 引入ArcGis样式
 import "./style/index.less" // 引入自定义样式
 
@@ -31,6 +31,12 @@ export default class Arcgis {
     viewScene2D: __esri.MapView | null
     // 当前地图类型
     mapType = ''
+    // 2D摄像机高度
+    z = 0
+    //  3D摄像机高度
+    z_3D = 0 //
+    // 
+    coordinate: Point | null = null
 
     constructor() {
         this.map = null
@@ -81,7 +87,7 @@ export default class Arcgis {
                     center: [DEFAULT_LONGITUDE, DEFAULT_LATITUDE],
                     ...options as __esri.MapViewProperties
                 })
-                this.onMapClick()
+                this.openlisten()
                 return Promise.resolve(this.viewScene2D)
             }
 
@@ -134,12 +140,22 @@ export default class Arcgis {
                 },
                 ...options
             })
-            this.onMapClick()
+            this.openlisten()
             return Promise.resolve(this.viewScene3D)
 
         } catch (error) {
             throw new Error(error as string)
         }
+    }
+
+    /**
+     * 地图初始化后添加事件监听
+     */
+    openlisten = () => {
+        this.onMapClick()
+        this.onMapMouseMove()
+        this.onMapCameraZoom()
+        this.onMapViewCenterChange()
     }
 
     /**
@@ -171,13 +187,14 @@ export default class Arcgis {
 
     /**
      * 地图点击事件监听并触发mitt
+     * {mapViewClick, sceneViewClick}
      */
     onMapClick = () => {
         try {
             if (this.mapType === '2D' && this.viewScene2D) {
                 this.viewScene2D.on('click', _.throttle(async (event: __esri.ViewClickEvent) => {
                     mapViewEmitter.emit(MAP_VIEW_CLICK, event)
-                }))
+                }, 500))
                 return
             }
 
@@ -204,7 +221,7 @@ export default class Arcgis {
 
                     }
 
-                }))
+                }, 500))
                 return
             }
 
@@ -240,6 +257,192 @@ export default class Arcgis {
         }
     }
 
+    /**
+     * 地图鼠标移动事件监听并触发mitt
+     * {mapViewMouseMove, sceneViewMouseMove}
+     * @returns 
+     */
+    onMapMouseMove = () => {
+        try {
+            if (this.mapType === '2D' && this.viewScene2D) {
+                this.viewScene2D.on('pointer-move', _.throttle(async (event: __esri.ViewPointerMoveEvent) => {
+                    mapViewEmitter.emit(MAP_VIEW_MOUSEMOVE, event)
+                }, 150))
+                return
+            }
+
+            if (this.mapType === '3D' && this.viewScene3D) {
+                const view = this.viewScene3D
+                this.viewScene3D.on('pointer-move', _.throttle(async (event: __esri.ViewPointerMoveEvent) => {
+                    sceneViewEmitter.emit(SCENE_VIEW_MOUSEMOVE, event)
+                    view.hitTest(event).then((response: __esri.SceneViewHitTestResult) => {
+                        try {
+                            if (response.results.length > 0) {
+                                // mouseMoveHighlight(response)
+                                // return
+                            }
+                        } catch (error) {
+                            throw new Error(error as string)
+                        }
+                    })
+
+                }, 150))
+                return
+            }
+
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    /**
+     * 2D地图监听鼠标移动事件
+     * @param { __esri.ViewPointerMoveEvent } handler 
+     */
+    mapViewMouseMove = (handler: Handler<__esri.ViewPointerMoveEvent>) => {
+        try {
+            mapViewEmitter.on(MAP_VIEW_MOUSEMOVE, (event) => {
+                handler(event as __esri.ViewPointerMoveEvent)
+            })
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    /**
+     * 3D地图监听鼠标移动事件
+     * @param { __esri.ViewPointerMoveEvent } handler 
+     */
+    sceneViewMouseMove = (handler: Handler<__esri.ViewPointerMoveEvent>) => {
+        try {
+            sceneViewEmitter.on(SCENE_VIEW_MOUSEMOVE, (event) => {
+                handler(event as __esri.ViewPointerMoveEvent)
+            })
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    /**
+     * 地图摄像机高度变化事件监听并触发mitt
+     * {mapViewCameraZoom, sceneViewCameraZoom}
+     * @returns 
+     */
+    onMapCameraZoom = () => {
+        try {
+            if (this.mapType === '2D' && this.viewScene2D) {
+                const view = this.viewScene2D
+                view.watch(
+                    'camera',
+                    _.debounce((event: any) => {
+                        try {
+                            this.z = event.position.z
+                            mapViewEmitter.emit(CAMREAHEIGHT, event)
+                        } catch (error) {
+                            throw new Error(error as string)
+                        }
+                    }, 200)
+                )
+                return
+                return
+            }
+
+            if (this.mapType === '3D' && this.viewScene3D) {
+                const view = this.viewScene3D
+                view.watch(
+                    'camera',
+                    _.debounce((event: any) => {
+                        try {
+                            this.z_3D = event.position.z
+                            sceneViewEmitter.emit(CAMREAHEIGHT, event)
+                        } catch (error) {
+                            throw new Error(error as string)
+                        }
+                    }, 200)
+                )
+                return
+            }
+
+        } catch (error) {
+            throw new Error(error as string)
+        }
+    }
+
+    /**
+     * 2D地图监听摄像机高度变化事件
+     * @param handler 
+     */
+    mapViewCameraZoom = (handler: Handler<any>) => {
+        try {
+            mapViewEmitter.on(CAMREAHEIGHT, (value: any) => {
+                handler(value)
+            })
+        } catch (error) {
+            throw Error(error as string)
+        }
+    }
+
+    /**
+     * 3D地图监听摄像机高度变化事件
+     * @param handler 
+     */
+    sceneViewCameraZoom = (handler: Handler<any>) => {
+        try {
+            sceneViewEmitter.on(CAMREAHEIGHT, (value: any) => {
+                handler(value)
+            })
+        } catch (error) {
+            throw Error(error as string)
+        }
+
+    }
+
+    /**
+     * 地图中心点变化事件监听并触发mitt
+     * @returns 
+     */
+    onMapViewCenterChange = () => {
+        try {
+
+            if (this.mapType === '2D' && this.viewScene2D) {
+                const view = this.viewScene2D
+                view.watch('center', () => {
+                    try {
+                        if (!this.z) return
+                        if (this.coordinate) {
+                            const { x, y } = view.toScreen(this.coordinate)
+                            console.log("onMapViewCenterChange", x, y)
+                        }
+                    } catch (error) {
+                        throw new Error(error as string)
+                    }
+                })
+
+                return
+            }
+
+            if (this.mapType === '3D' && this.viewScene3D) {
+                const view = this.viewScene3D
+                view.watch('center', () => {
+                    try {
+                        if (!this.z_3D) return
+                        if (this.coordinate) {
+                            const { x, y } = view.toScreen(this.coordinate)
+                            console.log("onSceneViewCenterChange", x, y)
+                        }
+                    } catch (error) {
+                        throw new Error(error as string)
+                    }
+                })
+                return
+            }
+
+        } catch (error) {
+            throw Error(error as string)
+        }
+
+    }
+
 
     /**
     * @description 清除所有mitt监听
@@ -252,6 +455,8 @@ export default class Arcgis {
             throw Error(error as string)
         }
     }
+
+
     /**
      * @description 清除单个mitt监听
      */
@@ -261,3 +466,4 @@ export default class Arcgis {
     }
 
 }
+

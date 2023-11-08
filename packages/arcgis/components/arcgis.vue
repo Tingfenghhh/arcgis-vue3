@@ -28,6 +28,11 @@ const emits = defineEmits<{
   (e: "onMapLoaded", map: __esri.SceneView | __esri.MapView): void;
   (e: "onMapClick", event: __esri.ViewClickEvent | undefined): void;
   (e: "onSceneMapClick", event: __esri.ViewClickEvent | undefined): void;
+  (e: "onMapMouseMove", event: __esri.ViewPointerMoveEvent | undefined): void;
+  (
+    e: "onSceneMapMouseMove",
+    event: __esri.ViewPointerMoveEvent | undefined
+  ): void;
 }>();
 
 /**
@@ -57,6 +62,20 @@ ArcgisMap.mapViewClick((e: __esri.ViewClickEvent) => {
  */
 ArcgisMap.sceneViewClick((e: __esri.ViewClickEvent) => {
   emits("onSceneMapClick", e);
+});
+
+/**
+ * mapViewMouseMove(2D)
+ */
+ArcgisMap.mapViewMouseMove((e: __esri.ViewPointerMoveEvent) => {
+  emits("onMapMouseMove", e);
+});
+
+/**
+ * sceneViewMouseMove(3D)
+ */
+ArcgisMap.sceneViewMouseMove((e: __esri.ViewPointerMoveEvent) => {
+  emits("onSceneMapMouseMove", e);
 });
 
 /**

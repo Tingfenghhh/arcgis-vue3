@@ -8,8 +8,17 @@ const mapLoaded = (map: __esri.SceneView | __esri.MapView) => {
 const mapClick = (event: __esri.ViewClickEvent | undefined) => {
   console.log("2d地图点击事件", event);
 };
+
+const mapMouseMove = (event: __esri.ViewPointerMoveEvent | undefined) => {
+  console.log("2d地图鼠标移动事件", event);
+};
+
 const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
   console.log("3d地图点击事件", event);
+};
+
+const sceneMouseMove = (event: __esri.ViewPointerMoveEvent | undefined) => {
+  console.log("3d地图鼠标移动事件", event);
 };
 </script>
 
@@ -26,12 +35,14 @@ const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
     "
     @onMapLoaded="mapLoaded"
     @onMapClick="mapClick"
+    @on-map-mouse-move="mapMouseMove"
   />
   <T-ArcGis
     :map-type="'SceneView'"
     :quality-profile="'low'"
     @onMapLoaded="mapLoaded"
     @onSceneMapClick="sceneClick"
+    @on-scene-map-mouse-move="sceneMouseMove"
   />
 </template>
 
