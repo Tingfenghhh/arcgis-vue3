@@ -1,7 +1,7 @@
 {
   "name": "arcgis-vue3",
   "private": false,
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "arcgis-vue3组件包",
   "author": {
     "name": "tingfeng",

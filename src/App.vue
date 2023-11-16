@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import __esri from "@arcgis/core/intl"; // 引入ArcGis的TS所有类型合集
 
 const mapLoaded = (map: __esri.SceneView | __esri.MapView) => {
   console.log("地图加载完毕", map);
@@ -35,14 +35,14 @@ const sceneMouseMove = (event: __esri.ViewPointerMoveEvent | undefined) => {
     "
     @onMapLoaded="mapLoaded"
     @onMapClick="mapClick"
-    @on-map-mouse-move="mapMouseMove"
+    @onMapMouseMove="mapMouseMove"
   />
   <T-ArcGis
     :map-type="'SceneView'"
     :quality-profile="'low'"
     @onMapLoaded="mapLoaded"
     @onSceneMapClick="sceneClick"
-    @on-scene-map-mouse-move="sceneMouseMove"
+    @onSceneMapMouseMove="sceneMouseMove"
   />
 </template>
 
