@@ -43,7 +43,7 @@ main.ts中引入
 ```vue
 
 <script setup lang="ts">
-import __esri from '@arcgis/core/intl' // 引入ArcGis的TS所有类型合集
+import __esri from "@arcgis/core/intl"; // 引入ArcGis的TS所有类型合集
 
 const mapLoaded = (map: __esri.SceneView | __esri.MapView) => {
   console.log("地图加载完毕", map);
@@ -52,13 +52,21 @@ const mapLoaded = (map: __esri.SceneView | __esri.MapView) => {
 const mapClick = (event: __esri.ViewClickEvent | undefined) => {
   console.log("2d地图点击事件", event);
 };
+
+const mapMouseMove = (event: __esri.ViewPointerMoveEvent | undefined) => {
+  console.log("2d地图鼠标移动事件", event);
+};
+
 const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
   console.log("3d地图点击事件", event);
+};
+
+const sceneMouseMove = (event: __esri.ViewPointerMoveEvent | undefined) => {
+  console.log("3d地图鼠标移动事件", event);
 };
 </script>
 
 <template>
-  <!-- 2D地图 -->
   <T-ArcGis
     :map-type="'MapView'"
     :map-options="{
@@ -71,17 +79,16 @@ const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
     "
     @onMapLoaded="mapLoaded"
     @onMapClick="mapClick"
+    @onMapMouseMove="mapMouseMove"
   />
-  <!-- 3D地图 -->
   <T-ArcGis
     :map-type="'SceneView'"
     :quality-profile="'low'"
     @onMapLoaded="mapLoaded"
     @onSceneMapClick="sceneClick"
+    @onSceneMapMouseMove="sceneMouseMove"
   />
 </template>
-
-<style lang="less" scoped></style>
 
 ```
 
@@ -99,8 +106,10 @@ const sceneClick = (event: __esri.ViewClickEvent | undefined) => {
 
 ## 地图组件事件
 
-|      事件名       | 函数携带默认的参数类型  | 说明                             |
-| :---------------: | :---------------------: | :------------------------------- |
-|   `onMapLoaded`   |    `__esri.MapView`     | 地图加载完毕事件，返回地图实例   |
-|   `onMapClick`    | `__esri.ViewClickEvent` | 2D地图点击事件，返回点击事件对象 |
-| `onSceneMapClick` | `__esri.ViewClickEvent` | 3D地图点击事件，返回点击事件对象 |
+|        事件名         |   函数携带默认的参数类型    |                 说明                 |
+| :-------------------: | :-------------------------: | :----------------------------------: |
+|     `onMapLoaded`     |          `MapView`          |    地图加载完毕事件，返回地图实例    |
+|     `onMapClick`      |      `ViewClickEvent`       |   2D地图点击事件，返回点击事件对象   |
+|   `onSceneMapClick`   |      `ViewClickEvent`       |   3D地图点击事件，返回点击事件对象   |
+|   `onMapMouseMove`    |   `ViewPointerMoveEvent`    | 2D地图鼠标移动事件，返回点击事件对象 |
+| `onSceneMapMouseMove` | `esri.ViewPointerMoveEvent` | 3D地图鼠标移动事件，返回点击事件对象 |
